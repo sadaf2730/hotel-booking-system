@@ -54,17 +54,24 @@ class CursorWrapper:
             query = query.replace('?', '%s')
             
             # Execute query
-            self.cursor.execute(query, params)
+            if params is None:
+                self.cursor.execute(query)
+            else:
+                self.cursor.execute(query, params)
             
             # Capture lastrowid equivalent for INSERT statements
             if query.strip().upper().startswith("INSERT"):
                 try:
-                    self.cursor.execute("SELECT LASTVAL()")
-                    self.last_inserted_id = self.cursor.fetchone()[0]
+                    if self.is_postgres:
+                        self.cursor.execute("SELECT LASTVAL()")
+                        self.last_inserted_id = self.cursor.fetchone()[0]
                 except Exception:
                     self.last_inserted_id = None
         else:
-            self.cursor.execute(query, params)
+            if params is None:
+                self.cursor.execute(query)
+            else:
+                self.cursor.execute(query, params)
 
     def executemany(self, query, params_list):
         if self.is_postgres:
