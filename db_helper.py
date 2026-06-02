@@ -114,6 +114,15 @@ def get_db_connection():
     else:
         # Fallback to local SQLite database path from env or default
         db_path = os.getenv("DATABASE_PATH", "hotel_booking_system.db")
+        
+        # Ensure target directory exists for SQLite
+        db_dir = os.path.dirname(db_path)
+        if db_dir and not os.path.exists(db_dir):
+            try:
+                os.makedirs(db_dir, exist_ok=True)
+            except Exception:
+                pass
+                
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON")
