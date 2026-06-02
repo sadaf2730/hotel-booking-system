@@ -146,13 +146,11 @@ if ("serviceWorker" in navigator) {
 # ---------- DB CONFIG ----------
 RATE_PER_DAY = 1000
 
+from db_helper import get_db_connection
+
 # ---------- DB CONNECTION ----------
 def get_conn():
-    db_path = os.getenv("DATABASE_PATH", "hotel_booking_system.db")
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    return get_db_connection()
 
 # ---------- INITIALIZE DATABASE ----------
 def init_db():
@@ -1023,7 +1021,9 @@ def cancel_booking(booking_id):
     flash("Booking canceled successfully!", "success")
     return redirect(url_for("bookings"))
 
+# Run database schema initialization on startup
+init_db()
+
 # ---------- START ----------
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)

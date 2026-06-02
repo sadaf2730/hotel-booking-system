@@ -8,13 +8,11 @@ import os
 app = Flask(__name__)
 app.secret_key = "hotel-admin-secure-session-key-random"
 
+from db_helper import get_db_connection
+
 # ---------- DB CONNECTION ----------
 def get_conn():
-    db_path = os.getenv("DATABASE_PATH", "hotel_booking_system.db")
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    return get_db_connection()
 
 # ---------- DATABASE MIGRATION & ADMIN SEEDING ----------
 def run_migrations_and_seed():
@@ -1469,8 +1467,10 @@ def cancel_booking(booking_id):
     return redirect(url_for("dashboard"))
 
 
+# Run database migrations and seed default admin credentials on startup
+run_migrations_and_seed()
+
 # ---------- BOOTSTRAP APP ----------
 if __name__ == "__main__":
-    run_migrations_and_seed()
     # Runs on port 5001 to prevent conflicts with main client app
     app.run(debug=True, port=5001)
