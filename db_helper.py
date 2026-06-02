@@ -77,11 +77,15 @@ class CursorWrapper:
         row = self.cursor.fetchone()
         if row is None:
             return None
-        return RowWrapper(row, self.is_postgres)
+        if self.is_postgres:
+            return RowWrapper(row, self.is_postgres)
+        return row
 
     def fetchall(self):
         rows = self.cursor.fetchall()
-        return [RowWrapper(r, self.is_postgres) for r in rows]
+        if self.is_postgres:
+            return [RowWrapper(r, self.is_postgres) for r in rows]
+        return rows
 
     @property
     def lastrowid(self):
