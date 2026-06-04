@@ -12,3 +12,11 @@ run_migrations_and_seed()
 application = DispatcherMiddleware(guest_app, {
     '/admin': admin_app
 })
+
+if __name__ == "__main__":
+    from werkzeug.serving import run_simple
+    print("Starting Clutch Hotel Portal on http://localhost:5000")
+    print("Front Desk Desk operations at: http://localhost:5000/")
+    print("Administrative dashboard at: http://localhost:5000/admin")
+    run_simple('localhost', 5000, application, use_reloader=True, use_debugger=True)
+
