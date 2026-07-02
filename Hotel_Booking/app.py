@@ -1,5 +1,4 @@
 from flask import Flask, request, redirect, url_for, render_template_string, flash, session, jsonify
-import sqlite3
 from datetime import datetime, timedelta, date
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
@@ -35,13 +34,11 @@ def send_email(to_email, subject, message):
 # ---------- DB CONFIG ----------
 RATE_PER_DAY = 1000
 
+from db_helper import get_db_connection
+
 # ---------- DB CONNECTION ----------
 def get_conn():
-    db_path = os.getenv("DATABASE_PATH", "hotel_booking_system.db")
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    return get_db_connection()
 
 # ---------- INITIALIZE DATABASE ----------
 def init_db():

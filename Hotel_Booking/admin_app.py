@@ -1,5 +1,4 @@
 from flask import Flask, request, redirect, url_for, render_template_string, flash, session, jsonify
-import sqlite3
 from datetime import datetime, date
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -8,13 +7,11 @@ import os
 app = Flask(__name__)
 app.secret_key = "hotel-admin-secure-session-key-random"
 
+from db_helper import get_db_connection
+
 # ---------- DB CONNECTION ----------
 def get_conn():
-    db_path = os.getenv("DATABASE_PATH", "hotel_booking_system.db")
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    return get_db_connection()
 
 # ---------- DATABASE MIGRATION & ADMIN SEEDING ----------
 def run_migrations_and_seed():
@@ -23,12 +20,11 @@ def run_migrations_and_seed():
 
     # 1. Add is_admin column to users table if it doesn't exist
     try:
-        cur.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin INTEGER DEFAULT 0")
         conn.commit()
-        print("Migration: Added is_admin column to users table.")
-    except sqlite3.OperationalError:
-        # Column already exists
-        pass
+        print("Migration: Checked is_admin column in users table.")
+    except Exception as e:
+        print(f"Migration column check info: {e}")
 
     # 2. Seed default admin if there are none
     cur.execute("SELECT COUNT(*) FROM users WHERE is_admin = 1")
